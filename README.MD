@@ -9,12 +9,17 @@ npm install -g bestzip
 
 Ensure you have AWS IAM role configured on your machine.
 
-To Deploy all resources API, Lambda, DynamoDB
+1. Create New Bucket to store lambda zip files
 ```
-npm run deploy
+npm run setup-bucket ${BUCKETNAME}
 ```
 
-To Test
+2. To Deploy all resources API, Lambda, DynamoDB
+```
+npm run deploy ${BUCKETNAME}
+```
+
+3. To Test
 ```
 npm run test
 ```
