@@ -1,0 +1,80 @@
+# aws cloudformation package ... should work for this
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Cloudformation template for all the resources"
+Parameters:
+  QSS3BucketName:
+    Type: 'String'
+    Description: 'This is Source bucket'
+  QSS3KeyPrefix:
+    Type: 'String'
+    Description: 'Prefix where code zip is saved'
+  ReadCapacityUnits:
+    Description: Provisioned read throughput
+    Type: Number
+    Default: '5'
+    MinValue: '5'
+    MaxValue: '10000'
+    ConstraintDescription: must be between 5 and 10000
+  WriteCapacityUnits:
+    Description: Provisioned write throughput
+    Type: Number
+    Default: '10'
+    MinValue: '5'
+    MaxValue: '10000'
+    ConstraintDescription: must be between 5 and 10000
+
+Resources:
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "pk"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "pk"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref 'ReadCapacityUnits'
+        WriteCapacityUnits: !Ref 'WriteCapacityUnits'
+          
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+              - Effect: Allow
+                Principal:
+                  Service: lambda.amazonaws.com
+                Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  CreateTodo:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: CreateTodo
+      Handler: create-todo/index.handler
+      Runtime: nodejs12.x
+      Role: !GetAtt 'LambdaRole.Arn'
+      Timeout: 300
+      Code:
+        S3Bucket: !Ref 'QSS3BucketName'
+        S3Key: !Sub 'functions/createTodo.zip'
+
+  ReadTodo:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: ReadTodo
+      Handler: read-todo/index.handler
+      Runtime: nodejs12.x
+      Role: !GetAtt 'LambdaRole.Arn'
+      Timeout: 300
+      Code:
+        S3Bucket: !Ref 'QSS3BucketName'
+        S3Key: !Sub 'functions/readTodo.zip'
+
+  # TODO: Add more resources as per requirement like lambda roles
+
+#Outputs:
+# TODO: Add relevant outputs here (optional)

@@ -1,0 +1,4 @@
+# docker-compose file for easy deployment test and running tests
+# TODO: Create a single image for (optional)
+# - Deploying Cloudformation
+# - A url for hitting lambdas
