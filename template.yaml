@@ -15,6 +15,9 @@ Parameters:
     MinValue: '5'
     MaxValue: '10000'
     ConstraintDescription: must be between 5 and 10000
+  LambdaDescription:
+    Type: String
+    Description: 'Description for lambda'
   WriteCapacityUnits:
     Description: Provisioned write throughput
     Type: Number
@@ -27,6 +30,7 @@ Resources:
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: todo-table
       AttributeDefinitions:
         - AttributeName: "pk"
           AttributeType: "S"
@@ -49,11 +53,13 @@ Resources:
                 Action: sts:AssumeRole
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
 
   CreateTodo:
     Type: AWS::Lambda::Function
     Properties:
-      Description: CreateTodo
+      FunctionName: create-todo-fn
+      Description: !Ref 'LambdaDescription'
       Handler: create-todo/index.handler
       Runtime: nodejs12.x
       Role: !GetAtt 'LambdaRole.Arn'
@@ -65,7 +71,8 @@ Resources:
   ReadTodo:
     Type: AWS::Lambda::Function
     Properties:
-      Description: ReadTodo
+      FunctionName: read-todo-fn
+      Description: !Ref 'LambdaDescription'
       Handler: read-todo/index.handler
       Runtime: nodejs12.x
       Role: !GetAtt 'LambdaRole.Arn'

@@ -6,13 +6,16 @@ Parameters:
   apiGatewayStageName:
     Type: String
     AllowedPattern: "[a-z0-9]+"
-    Default: call
+    Default: dev
   firstLambda:
     Type: String
-    Default: "lambda-stack-CreateTodo-X0KUPISYJL5"
+    Default: "create-todo-fn"
   secondLambda:
     Type: String
-    Default: "lambda-stack-ReadTodo-32LJCB06WKCM"
+    Default: "read-todo-fn"
+  DateTime:
+    Type: String
+    Description: 'Timer to trigger update'
 
 Resources:
   apiGateway:
@@ -51,7 +54,7 @@ Resources:
       AuthorizationType: NONE
       HttpMethod: GET
       Integration:
-        IntegrationHttpMethod: GET
+        IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
@@ -68,25 +71,31 @@ Resources:
       RestApiId: !Ref apiGateway
       StageName: !Ref apiGatewayStageName
 
-  lambdaApiGatewayInvoke:
+  lambdaApiGatewayInvokeFirstLambda:
     Type: AWS::Lambda::Permission
+    DependsOn:
+      - apiGatewayPOSTMethod
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${firstLambda}
       Principal: apigateway.amazonaws.com
       # note: if route *not* at API Gateway root, `SourceArn` would take the form of:
       #               arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/${apiGatewayStageName}/${apiGatewayHTTPMethod}/PATH_PART
-      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/${apiGatewayStageName}/POST/task
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/*/*
 
-  lambdaApiGatewayInvokeSecond:
+  lambdaApiGatewayInvokeSecondLambda:
     Type: AWS::Lambda::Permission
+    DependsOn:
+      - apiGatewayGETMethod
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${secondLambda}
       Principal: apigateway.amazonaws.com
       # note: if route *not* at API Gateway root, `SourceArn` would take the form of:
       #               arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/${apiGatewayStageName}/${apiGatewayHTTPMethod}/PATH_PART
-      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/${apiGatewayStageName}/GET/task
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/*/*
+
+
 
 Outputs:
   apiGatewayInvokeURL:
