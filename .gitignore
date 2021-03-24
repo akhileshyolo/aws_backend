@@ -3,3 +3,7 @@ create-todo/node_modules
 
 read-todo/package-lock.json
 read-todo/node_modules
+
+packages/
+
+node_modules

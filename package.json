@@ -1,0 +1,25 @@
+{
+  "name": "backend-deployment",
+  "version": "1.0.0",
+  "description": "<!-- Documentation goes here -->",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "deploy": "bash deploy.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arki7n/aws_backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arki7n/aws_backend/issues"
+  },
+  "homepage": "https://github.com/arki7n/aws_backend#readme",
+  "devDependencies": {
+    "bestzip": "^2.2.0"
+  }
+}
